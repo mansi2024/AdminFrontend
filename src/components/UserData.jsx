@@ -1,20 +1,29 @@
+
 import React, { useState, useEffect } from 'react';
 import "./UserData.css";
 import { FaRegEdit } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 
-const UserData = ({ users, selectedRows, onSelectRow, onDeleteSelected }) => {
+const UserData = ({ users, selectedRows, onSelectRow, onDeleteSelected,onUserDataState}) => {
     const [updateState, setUpdateState] = useState(-1);
     const [displayedUsers, setDisplayedUsers] = useState(users);
-
-    const handleCheckboxChange = (userId) => {
-        onSelectRow(userId);
-      };
 
     useEffect(() => {
         setDisplayedUsers(users);
     }, [users]);
+    
+    const handleCheckboxChange = (userId) => {
+        const userInDisplayedUsers = displayedUsers.find((user) => user.id === userId);
 
+        if (userInDisplayedUsers) {
+            onSelectRow(userId);
+        }
+    };
+    
+    useEffect(() => {
+        setDisplayedUsers(users);
+    }, [users]);
+   
     const handleUpdate = (updatedUser) => {
         const updatedUsers = displayedUsers.map((user) =>
             user.id === updatedUser.id ? updatedUser : user
@@ -22,12 +31,16 @@ const UserData = ({ users, selectedRows, onSelectRow, onDeleteSelected }) => {
         console.log("Updated users:", updatedUsers);
         setDisplayedUsers(updatedUsers);
         setUpdateState(-1);
+        onUserDataState(updatedUsers);
     };
 
     const handleDelete = (userId) => {
         const updatedUsers = displayedUsers.filter(user => user.id !== userId);
         console.log("Deleted user:", userId);
+        
         setDisplayedUsers(updatedUsers);
+        onUserDataState(updatedUsers);
+        // 
     };
 
     return (

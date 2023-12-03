@@ -12,11 +12,15 @@ const API = "https://geektrust.s3-ap-southeast-1.amazonaws.com/adminui-problem/m
 const App = ()=> {
   const [users,setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedRows, setSelectedRows] = useState([]);
+  const [selectedRows, setSelectedRows] = useState(users);
   const [pageNumber, setPageNumber] = useState(0);
   const usersPerPage = 10;
   const pagesVisited = pageNumber*usersPerPage;
   const pageCount = Math.ceil(users.length/usersPerPage);
+
+  const handleUpdateUsers = (updatedUsers) => {
+    setUsers(updatedUsers);
+  };
   const changePage = ({selected})=>{
     setPageNumber(selected);
   };
@@ -32,6 +36,10 @@ const App = ()=> {
       console.error(e)
     }
   };
+
+  useEffect(()=>{
+    fetchUsers(API);
+}, []);
 
   const handleSearch= (term)=>{
     setSearchTerm(term);
@@ -51,15 +59,15 @@ const App = ()=> {
   };
 
   const handleDeleteSelected = () => {
-    // Filter out the selected rows from the users state
-    const updatedUsers = users.filter((user) => !selectedRows.includes(user.id));
-    setUsers(updatedUsers);
+    setUsers((prevUsers) =>
+      prevUsers.filter((user) => !selectedRows.includes(user.id))
+    );
     // Clear the selected rows
     setSelectedRows([]);
+    
   };
-  useEffect(()=>{
-      fetchUsers(API);
-  }, []);
+  
+
 
    
   return <>
@@ -83,7 +91,8 @@ const App = ()=> {
         
         <UserData users={users.filter((user)=>user.name.includes(searchTerm) || user.email.includes(searchTerm) || user.role.includes(searchTerm)).slice(pagesVisited, pagesVisited + usersPerPage)} selectedRows={selectedRows}
               onSelectRow={handleSelectRow}
-              onDeleteSelected={handleDeleteSelected}/>
+              onDeleteSelected={handleDeleteSelected}
+              onUserDataState={handleUpdateUsers}/>
       </tbody>
      </table>
      
